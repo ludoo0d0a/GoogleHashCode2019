@@ -13,7 +13,6 @@ class Graph:
         self.V= vertices #No. of vertices 
         self.graph = [] # default dictionary  
                                 # to store graph 
-          
    
     # function to add an edge to graph 
     def addEdge(self,u,v,w): 
@@ -87,9 +86,9 @@ class Graph:
             # Else discard the edge 
   
         # print the contents of result[] to display the built MST 
-        print "Following are the edges in the constructed MST"
-        for u,v,weight  in result: 
-            #print str(u) + " -- " + str(v) + " == " + str(weight) 
+        print ("Following are the edges in the constructed MST")
+        for u,v,weight in result: 
+            # print str(u) + " -- " + str(v) + " == " + str(weight) 
             print ("%d -- %d == %d" % (u,v,weight)) 
   
 # Driver code 

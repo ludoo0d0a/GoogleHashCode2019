@@ -1,8 +1,9 @@
 # coding: utf-8
 
+# NO VALID INPUT FILE...
+#
 # https://gist.github.com/Peng-YM/84bd4b3f6ddcb75a147182e6bdf281a6
 import re
-
 
 # Class WeightedGraph
 class WeightedGraph:
@@ -97,7 +98,7 @@ def kruskal(G):
 
 
 if __name__ == '__main__':
-    WG = WeightedGraph("Graph")
+    WG = WeightedGraph("inputfile.txt")
     print("================USING PRIM ALGORITHM================")
     MST = prim(WG)
     # print the edges of the MST

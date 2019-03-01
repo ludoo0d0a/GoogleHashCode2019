@@ -3,7 +3,8 @@ from sys import argv
 import re
 
 # open the file and get read to read data
-file = open(argv[1], "r")
+# file = open(argv[1], "r")
+file = open("graph.in", "r")
 p = re.compile("\d+")
 
 # initialize the graph
@@ -40,4 +41,4 @@ while len(X) != vertices:
 
 # print the edges of the MST
 for edge in T:
-    print edge
+    print (edge)

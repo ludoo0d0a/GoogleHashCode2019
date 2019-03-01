@@ -44,10 +44,11 @@ for slide in slides:
 	print("Slide with photo ", slide['i'], "-", (slide['h'] and "H" or "V"), "=", slide['tags'])
 
 for i in range(n):
-	for j in range(i,n):
-		G.add_edge(i,j,weight = -get_weight(i,j))
+	for j in range(i+1,n):
+		G.add_edge(i,j,weight = get_weight(i,j))
 
-T = nx.minimum_spanning_tree(G)
+# kruskal’, ‘prim’, or ‘boruvka’
+T = nx.maximum_spanning_tree(G, algorithm='prim')
 edges = T.edges(data=True)
 
 for edge in edges:
