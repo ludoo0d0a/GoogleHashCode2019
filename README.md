@@ -9,3 +9,11 @@ Install libraries
 pip install networkx
 ```
 
+algo:
+graph
+compute edges
+sort edges by weight (minimum function)
+loop:
+    collect heavier edge as first segment
+    for all extra siblings edges:
+        remove if node has 2 visited edge
