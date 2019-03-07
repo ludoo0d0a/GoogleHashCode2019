@@ -17,4 +17,3 @@ def read_file(fname):
 	return compute_score(slides, fname)
 
 read_all_files(fnames, read_file)
-logging.info("--- %s seconds --- ", time.time() - start_time)

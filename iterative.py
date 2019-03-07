@@ -15,6 +15,10 @@ def sort_slides(slides):
 
 def read_file(fname):
 	slides = read_lines(fname)
+	count_tags(slides)
+	count_unique_tags(slides)
+	count_distribution_tags(slides)
+	
 	sort_slides(slides)
 	index_dual_vphotos(slides)
 	iterate_slides(slides)
@@ -44,7 +48,8 @@ def find_after(i,start,visited,slides):
 
 def iterate_slide(i, slides, loop, count_slides):
 	global SCORE
-	r=find_after(i,i+1,visited,slides)
+	# r=find_after(i,i+1,visited,slides)
+	r=find_after(i,0,visited,slides)
 	wmax = r[0]
 	jmax = r[1]
 
@@ -63,7 +68,9 @@ def iterate_slide(i, slides, loop, count_slides):
 		if loop % STEP ==0:
 			logging.info(" pair %s>%s // +%s = %s", i, jmax, wmax, SCORE)
 			print_eta(loop, count_slides)
+	else:
+		if loop % STEP == 0:
+			logging.info("    ___pair %s>%s // +%s = %s", i, jmax, wmax, SCORE)
 	return jmax
 
 read_all_files(fnames, read_file)
-logging.info("--- %s seconds --- ", time.time() - start_time)

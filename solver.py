@@ -107,4 +107,3 @@ def add_edge(ie, i, j, slides):
 
 
 read_all_files(fnames, read_file)
-logging.info("--- %s seconds --- ", time.time() - start_time)

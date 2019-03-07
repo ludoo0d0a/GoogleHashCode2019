@@ -5,12 +5,13 @@ import operator
 import logging
 import time
 from random import shuffle
+from collections import Counter
 
 start_time = time.time()
 logger = logging.getLogger(__name__)
 #set your log level
-#logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.INFO)
 logging.debug('Start solver random')
 
 DIR = "input/"
@@ -42,6 +43,7 @@ def read_all_files(fnames, read_file):
 		init()
 		total_score += read_file(fname)
 	logging.info(' ===== Total Score=%s',  total_score)
+	logging.info(" --- %s seconds --- ", time.time() - start_time)
 
 def sum_tags(p1, p2):
 	tags = set()
@@ -115,7 +117,6 @@ def get_weight_slide(s1, s2):
 	l = len(c)
 	return min(l, len(s1["tags"])-l, len(s2["tags"])-l)
 
-
 def compute_score(slides, fname):
 	logging.info(" ")
 	logging.info(" --- compute score on %s slides", len(slides))
@@ -168,3 +169,36 @@ def print_eta(current, total):
 		eta = t * total / current
 		percent = round(100*current / total)
 	logging.info("--- %s%%  ETA: %s minutes --- ", percent, round(eta/60,2))
+
+
+def count_tags(slides):
+	count = 0
+	for slide in slides:
+		count += len(slide['tags'])
+	logging.info("--- %s tags --- ", count)
+
+def count_unique_tags(slides):
+	all = set()
+	for slide in slides:
+		all.update(slide['tags'])
+	logging.info("--- %s unique tags --- ", len(all))
+
+def count_distribution_tags(slides):
+	all_tags = Counter()
+	for slide in slides:
+		for tag in slide['tags']:
+			all_tags[tag]+=1
+
+	MAX=10
+	sorted_tags = sorted(all_tags.items(), key=operator.itemgetter(1), reverse=True)
+
+	distrib = Counter()
+	for k, v in sorted_tags:
+		distrib[v] += 1
+	logging.info("--- Distribution %s", distrib)
+
+	logging.info("--- %s first most used tags --- ", MAX)
+	for i, value in enumerate(sorted_tags):
+		logging.info("%s: %s", i, value)
+		if i >= MAX:
+			break
