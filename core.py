@@ -1,10 +1,10 @@
 import networkx as nx
 import networkx.algorithms.matching as matching
-import collections
 import operator
 import logging
 import time
 from random import shuffle
+from collections import *
 
 start_time = time.time()
 logger = logging.getLogger(__name__)
@@ -23,16 +23,20 @@ FILE_H_ONLY_100 = ['b2_100.txt']
 FILE_HV_SHORT = ['c_memorable_moments.txt']
 FILE_V_ONLY = ['e_shiny_selfies.txt']
 
-STEP = 20
+STEP = 2000
+#STEP = 1
+
 edges = dict()
-visited = dict()
+visited = set()
+result = list()
 start = dict()
 v = []  # photo v
 
 def init():
 	global edges, visited, start, v
 	edges = dict()
-	visited = dict()
+	visited = set()
+	result = list()
 	start = dict()
 	v = []
 
@@ -40,9 +44,11 @@ def read_all_files(fnames, read_file):
 	total_score = 0
 	for fname in fnames:
 		init()
-		total_score += read_file(fname)
+		score = read_file(fname)
+		total_score += score
+		save_output(fname, score)
 	logging.info(' ===== Total Score=%s',  total_score)
-
+	
 def sum_tags(p1, p2):
 	tags = set()
 	tags.update(p1["tags"])
@@ -62,6 +68,14 @@ def read_lines(fname):
 	return slides
 
 
+def save_output(fname, score):
+	path = 'output/'+fname+'.out'
+	logging.info(' ===== Save file in %s with score = ',  path, score)
+	f = open(path, 'w')
+	f.write(''+len(visited)+'\n')
+	for i in visited:
+		f.write(i+'\n')
+
 def process(i, line, slides):
 	segments = line.split(' ')
 	photo = {
@@ -72,14 +86,14 @@ def process(i, line, slides):
 	if (photo["h"]):
 		tags = photo["tags"]
 		slide = {
-                    "h": True,
-                 			#"visited": 0,
-                 			"i": len(slides),
-                 			"photo": i,
-                 			"ntags": len(tags),
-                 			"tags": tags,
-                 			"siblings": []
-                }
+			"h": True,
+			#"visited": 0,
+			"i": len(slides),
+			"photo": i,
+			"ntags": len(tags),
+			"tags": tags,
+			"sibling§s": []
+		}
 		slides.append(slide)  # direct add
 	else:
 		# defer add
