@@ -6,14 +6,16 @@ import time
 from random import shuffle
 from collections import *
 
-DEBUG = False
 start_time = time.time()
+
+def reset_time():
+	global start_time
+	start_time = time.time()
+
+reset_time()
 logger = logging.getLogger(__name__)
 #set your log level
-if DEBUG:
-	logging.basicConfig(level=logging.DEBUG)
-else:
-	logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 logging.info('Start solver random')
 
 DIR = "input/"
@@ -29,27 +31,25 @@ FILE_C_HV_SHORT = ['c_memorable_moments.txt']  # 1000 H+V
 FILE_D_HV_LONG = ['d_pet_pictures.txt'] # 90000 H+V
 FILE_E_V_LONG = ['e_shiny_selfies.txt'] # 80000 V
 
-STEP = 100
-#STEP = 1
-V_LIMIT = 0
-
 edges = dict()
-visited = set()
+visited_slides = set()
 result = list()
 start = dict()
 v = []  # all vertical photos
 index_slides_by_photo_v = defaultdict(lambda: set())
 
 def init():
-	global edges, visited, start, v, index_slides_by_photo_v
+	global edges, visited_slides, start, v, index_slides_by_photo_v
 	edges = dict()
-	visited = set()
+	visited_slides = set()
 	result = list()
 	start = dict()
 	v = []
 	index_slides_by_photo_v = defaultdict(lambda: set())
 
 def read_all_files(fnames, read_file):
+	if DEBUG:
+		logging.basicConfig(level=logging.DEBUG)
 	r = []
 	total_score=0
 	for fname in fnames:
@@ -58,7 +58,7 @@ def read_all_files(fnames, read_file):
 		f_start_time = time.time()
 		init()
 		score, slides = read_file(fname)
-		logger.info("_visited=%s", len(visited))
+		logger.info("_visited_slides=%s", len(visited_slides))
 		logger.info("_result=%s", len(result))
 		logger.info("_slides=%s", len(slides))
 		total_score += score
@@ -94,19 +94,19 @@ def save_output(fname, score, slides):
 	path = 'output/'+fname+'.out'
 	logging.info(' ===== Save file in %s with score = %s',  path, score)
 	f = open(path, 'w')
-	f.write(str(len(visited))+'\n')
-	for i in visited:
+	f.write(str(len(result))+'\n')
+	for i in result:
 		slide = slides[i]
 		if slide['h']:
 			f.write("{}\n".format(slide['photo']))
 		else:
 			f.write("{} {}\n".format(slide['photo1'], slide['photo2']))
 
-def process(i, line, slides):
+def process(index_line, line, slides):
 	segments = line.split(' ')
 	photo = {
 		"h": (segments.pop(0) == 'H'),
-		"i": i,
+		"line": index_line,
 		"ntags": int(segments.pop(0)),
 		"tags": set(segments)
 	}
@@ -114,8 +114,8 @@ def process(i, line, slides):
 		tags = photo["tags"]
 		slide = {
 			"h": True,
-			"i": i,
-			"photo": i,
+			"i": index_line,
+			"photo": index_line,
 			"ntags": len(tags),
 			"tags": tags,
 			"siblings": []
@@ -126,9 +126,12 @@ def process(i, line, slides):
 		v.append(photo)
 
 # Create all slides with 2 V photos
-def index_dual_vphotos(slides):
+
+
+def index_dual_vphotos(slides, V_LIMIT):
 	index_slide = len(slides)
 	count_v = len(v)
+	logging.info(' ===== index %s vertical photos / max limit=%s', count_v, V_LIMIT)
 	for iv in range(count_v):
 		# Limit sibling depth
 		if V_LIMIT>0:
@@ -137,8 +140,8 @@ def index_dual_vphotos(slides):
 			imax = count_v
 		for jv in range(iv+1, imax):
 			tags = sum_tags(v[iv], v[jv])
-			i1 = v[iv]["i"]
-			i2 = v[jv]["i"]
+			i1 = v[iv]['line']
+			i2 = v[jv]['line']
 			slide = {
 				"h": False,
 				"i": index_slide,
@@ -149,7 +152,7 @@ def index_dual_vphotos(slides):
 				"siblings": []
 			}
 			slides.append(slide)  # add an array
-			# index references once slide with a V is visited, remove all slides with this V
+			# index references once slide with a V is visited_slides, remove all slides with this V
 			#
 			index_slides_by_photo_v[i1].add(index_slide)
 			index_slides_by_photo_v[i2].add(index_slide)
@@ -208,15 +211,6 @@ def print_edges(edges):
 		for i, edge in edges.items():
 			print_edge(edge)
 
-def print_eta(current, total):
-	duration = time.time() - start_time
-	eta = 0
-	percent = 0
-	if current>0:
-		eta = duration * total / current
-		percent = round(100*current / total)
-	log_eta(eta, percent)
-
 def count_tags(slides):
 	count = 0
 	for slide in slides:
@@ -258,5 +252,14 @@ def log_time():
 def log_eta(eta, percent):
 	hours, remains = divmod(eta, 3600)
 	minutes, seconds = divmod(remains, 60)
-	logging.info("--- %s%%  ETA: %sh%sm --- ",
+	logging.info("--- %s%%  ETA: %sh%sm%ss --- ",
 	             percent, round(hours), round(minutes), round(seconds))
+
+def print_eta(current, total):
+	duration = time.time() - start_time
+	eta = 0
+	percent = 0
+	if current > 0:
+		eta = duration * total / current
+		percent = round(100*current / total)
+	log_eta(eta, percent)
