@@ -31,7 +31,7 @@ FILE_E_V_LONG = ['e_shiny_selfies.txt'] # 80000 V
 
 STEP = 100
 #STEP = 1
-V_LIMIT = 2
+V_LIMIT = 0
 
 edges = dict()
 visited = set()
@@ -54,12 +54,15 @@ def read_all_files(fnames, read_file):
 	total_score=0
 	for fname in fnames:
 		logging.info(' ')
-		logging.info(' == ===Start % s', fname)
+		logging.info(' =====Start % s', fname)
 		f_start_time = time.time()
 		init()
-		score = read_file(fname)
+		score, slides = read_file(fname)
+		logger.info("_visited=%s", len(visited))
+		logger.info("_result=%s", len(result))
+		logger.info("_slides=%s", len(slides))
 		total_score += score
-		save_output(fname, score)
+		save_output(fname, score, slides)
 		r.append({
 			"fname": fname,
 			"score": score,
@@ -84,11 +87,10 @@ def read_lines(fname):
 		i = 0
 		for line in f:
 			process(i, line[:-1], slides)
-			i = +1
+			i += 1
 	return slides
 
-
-def save_output(fname, score):
+def save_output(fname, score, slides):
 	path = 'output/'+fname+'.out'
 	logging.info(' ===== Save file in %s with score = %s',  path, score)
 	f = open(path, 'w')
@@ -96,14 +98,15 @@ def save_output(fname, score):
 	for i in visited:
 		slide = slides[i]
 		if slide['h']:
-			f.write(slide['photo']+'\n')
+			f.write("{}\n".format(slide['photo']))
 		else:
-			f.write(slide['photo1']+' '+slide['photo2']+'\n')
+			f.write("{} {}\n".format(slide['photo1'], slide['photo2']))
 
 def process(i, line, slides):
 	segments = line.split(' ')
 	photo = {
 		"h": (segments.pop(0) == 'H'),
+		"i": i,
 		"ntags": int(segments.pop(0)),
 		"tags": set(segments)
 	}
@@ -111,34 +114,36 @@ def process(i, line, slides):
 		tags = photo["tags"]
 		slide = {
 			"h": True,
-			#"visited": 0,
 			"i": i,
 			"photo": i,
 			"ntags": len(tags),
 			"tags": tags,
-			"sibling§s": []
+			"siblings": []
 		}
 		slides.append(slide)  # direct add
 	else:
 		# defer add
-		photo["iv"] = len(v)
 		v.append(photo)
 
 # Create all slides with 2 V photos
 def index_dual_vphotos(slides):
 	index_slide = len(slides)
 	count_v = len(v)
-	for i in range(count_v):
+	for iv in range(count_v):
 		# Limit sibling depth
-		imax = min(count_v, i+V_LIMIT)
-		for j in range(i+1, imax):
-			tags = sum_tags(v[i], v[j])
+		if V_LIMIT>0:
+			imax = min(count_v, iv+V_LIMIT)
+		else:
+			imax = count_v
+		for jv in range(iv+1, imax):
+			tags = sum_tags(v[iv], v[jv])
+			i1 = v[iv]["i"]
+			i2 = v[jv]["i"]
 			slide = {
 				"h": False,
-				#"visited": 0,
 				"i": index_slide,
-				"photo1": i,
-				"photo2": j,
+				"photo1": i1,
+				"photo2": i2,
 				"ntags": len(tags),
 				"tags": tags,
 				"siblings": []
@@ -146,8 +151,8 @@ def index_dual_vphotos(slides):
 			slides.append(slide)  # add an array
 			# index references once slide with a V is visited, remove all slides with this V
 			#
-			index_slides_by_photo_v[i].add(index_slide)
-			index_slides_by_photo_v[j].add(index_slide)
+			index_slides_by_photo_v[i1].add(index_slide)
+			index_slides_by_photo_v[i2].add(index_slide)
 			index_slide += 1
 
 def get_weight(i, j, slides):
@@ -182,7 +187,6 @@ def print_slides(slides):
 		logging.info(" --- %s slides", len(slides))
 		for slide in slides:
 			print_slide(slide)
-
 
 def print_slide(slide):
 	if logger.isEnabledFor(logging.DEBUG):
