@@ -4,11 +4,11 @@ import time
 from core import *
 
 #fnames = FILE_H_ONLY_100
-#fnames = FILE_A # =2
+fnames = FILE_A # =2
 #fnames = FILE_B_H_ONLY_100
 #fnames = FILE_B_H_ONLY  # 205248 ETA: 1.14 minutes  205625
 #fnames = FILE_C_HV_SHORT  # limit=5>16273  / l=50> 199055 in 28m / 
-fnames = FILE_D_HV_LONG
+#fnames = FILE_D_HV_LONG
 #fnames = FILE_E_V_LONG
 #fnames = ALL_FILES
 #fnames = ALL_FILES_2
@@ -51,7 +51,7 @@ def iterate_slides(slides):
 		i = iterate_slide(i, slides, loop, count_slides, keys_slides)
 		loop+=1
 
-def find_after(i,visited,slides):
+def find_after(i,slides):
 	global tag_slides
 	wmax = -1
 	jmax = -1
@@ -71,6 +71,12 @@ def find_after(i,visited,slides):
 			jmax = j
 	return (wmax, jmax)
 
+
+def visit_v_paired_slides(i, slides)
+	if not slides[i]['h']:
+		visit_v_paired_slides(slides[i]['photo1'])
+		visit_v_paired_slides(slides[i]['photo2'])
+
 def visit_v_paired_slides(index_photo):
 	# for j in index_slides_by_photo_v[index_photo]:
 	# 	visited.add(j)
@@ -78,12 +84,12 @@ def visit_v_paired_slides(index_photo):
 		
 def iterate_slide(i, slides, loop, count_slides, keys_slides):
 	global SCORE
-	wmax, jmax=find_after(i,visited,slides)
+	wmax, jmax=find_after(i,slides)
 
 	if jmax < 0:
 		logger.debug("Find a 0 transition")
 		for i in keys_slides - visited:
-			wmax, jmax  = find_after(i, visited, slides)
+			wmax, jmax  = find_after(i, slides)
 			if (jmax > 0):
 				break
 
@@ -94,13 +100,10 @@ def iterate_slide(i, slides, loop, count_slides, keys_slides):
 	result.append(i) #ordered list for output file
 
 	# clean tag_slides too
-	tag_slides ____
+	#tag_slides ____
 
-	# slide i visited
 	#visite also all paired for V slides
-	if not slides[i]['h']:
-		visit_v_paired_slides(slides[i]['photo1'])
-		visit_v_paired_slides(slides[i]['photo2'])
+	visit_v_paired_slides(i, slides)
 
 	if wmax > 0:
 		SCORE += wmax
