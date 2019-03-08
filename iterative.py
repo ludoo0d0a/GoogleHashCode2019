@@ -3,18 +3,18 @@ import logging
 import time
 from core import *
 
-tag_slides = defaultdict(lambda: set())
-SCORE=0
 #fnames = FILE_H_ONLY_100
 #fnames = FILE_A # =2
 #fnames = FILE_B_H_ONLY_100
 #fnames = FILE_B_H_ONLY  # 205248 ETA: 1.14 minutes  205625
-fnames = FILE_C_HV_SHORT  # limit=5>16273  / l=50> 199055 in 28m / 
-#fnames = FILE_D_HV_LONG
+#fnames = FILE_C_HV_SHORT  # limit=5>16273  / l=50> 199055 in 28m / 
+fnames = FILE_D_HV_LONG
 #fnames = FILE_E_V_LONG
 #fnames = ALL_FILES
 #fnames = ALL_FILES_2
 
+tag_slides = defaultdict(lambda: set())
+SCORE = 0
 first_slide = -1
 
 def sort_slides(slides):
@@ -55,13 +55,20 @@ def find_after(i,visited,slides):
 	global tag_slides
 	wmax = -1
 	jmax = -1
-	for tag in slides[i]['tags']:
-		js = tag_slides[tag]-visited
-		for j in js:
-			w = get_weight(i, j, slides)
-			if (w > wmax):
-				wmax = w
-				jmax = j
+	tags = slides[i]['tags']
+	
+	#Factorize
+	js = set()
+	for tag in tags:
+		js.update(tag_slides[tag])
+	js = js - visited
+	logging.debug(" find_after %s tags => %s slides , %s visited, ", len(tags), len(js), len(visited))
+
+	for j in js:
+		w = get_weight(i, j, slides)
+		if (w > wmax):
+			wmax = w
+			jmax = j
 	return (wmax, jmax)
 
 def visit_v_paired_slides(index_photo):
@@ -70,28 +77,24 @@ def visit_v_paired_slides(index_photo):
 	visited.update(index_slides_by_photo_v[index_photo])
 		
 def iterate_slide(i, slides, loop, count_slides, keys_slides):
-	global SCORE, first_slide
-	r=find_after(i,visited,slides)
-	wmax = r[0]
-	jmax = r[1]
+	global SCORE
+	wmax, jmax=find_after(i,visited,slides)
 
 	if jmax < 0:
 		logger.debug("Find a 0 transition")
 		for i in keys_slides - visited:
-			r = find_after(i, visited, slides)
-			if (r[1] > 0):
-				jmax = r[1]
-				wmax = r[0]
+			wmax, jmax  = find_after(i, visited, slides)
+			if (jmax > 0):
 				break
-
-	elif first_slide < 0:
-		first_slide = jmax
 
 	if jmax < 0:
 		logger.error("Impossible")
 
 	visited.add(i) # set for indexing
 	result.append(i) #ordered list for output file
+
+	# clean tag_slides too
+	tag_slides ____
 
 	# slide i visited
 	#visite also all paired for V slides
@@ -104,9 +107,8 @@ def iterate_slide(i, slides, loop, count_slides, keys_slides):
 		if loop % STEP ==0:
 			logging.info(" pair %s>%s // +%s = %s", i, jmax, wmax, SCORE)
 			print_eta(loop, count_slides)
-	else:
-		if loop % STEP == 0:
-			logging.info("    ___pair %s>%s // +%s = %s", i, jmax, wmax, SCORE)
+	elif loop % STEP == 0:
+			logging.info("    Add ZERO pair %s>%s // +%s = %s", i, jmax, wmax, SCORE)
 	return jmax
 
 read_all_files(fnames, read_file)

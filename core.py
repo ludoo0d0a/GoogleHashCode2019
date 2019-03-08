@@ -29,9 +29,9 @@ FILE_C_HV_SHORT = ['c_memorable_moments.txt']  # 1000 H+V
 FILE_D_HV_LONG = ['d_pet_pictures.txt'] # 90000 H+V
 FILE_E_V_LONG = ['e_shiny_selfies.txt'] # 80000 V
 
-STEP = 10
+STEP = 100
 #STEP = 1
-V_LIMIT = 100
+V_LIMIT = 2
 
 edges = dict()
 visited = set()
