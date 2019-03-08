@@ -252,9 +252,11 @@ def count_distribution_tags(slides):
 def log_time():
 	duration = time.time() - start_time
 	hours, remains = divmod(duration, 3600)
-	logging.info("---  Done in %sh%sm --- ", hours, round(remains/60, 2))
+	minutes, seconds = divmod(remains, 60)
+	logging.info("---  Done in %sh%sm%ss --- ", round(hours), round(minutes), round(seconds))
 
 def log_eta(eta, percent):
 	hours, remains = divmod(eta, 3600)
+	minutes, seconds = divmod(remains, 60)
 	logging.info("--- %s%%  ETA: %sh%sm --- ",
-	             percent, hours, round(remains/60, 2))
+	             percent, round(hours), round(minutes), round(seconds))
