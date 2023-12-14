@@ -1,11 +1,11 @@
 repo_name: ludoo0d0a/GoogleHashCode2019
-report_id: a515b92c94a4d278e5c8cbb8981caeda
+report_id: 803353787b639c8c9408f9b3c8c65519
 repo_type: Public
-timestamp: '2023-11-09T21:41:00+00:00'
+timestamp: '2023-12-14T12:32:17+00:00'
 requested_by: ludoo0d0a
 provider: github
 branch: master
-detected_tools_count: 2
+detected_tools_count: 4
 tools:
 - name: Python
   description: A clear and powerful object-oriented programming language, comparable
@@ -17,6 +17,17 @@ tools:
   sub_category: Languages
   image_url: https://img.stackshare.io/service/993/pUBY5pVj.png
   detection_source: Repo Metadata
+- name: pgvector
+  description: Open-source vector similarity search for Postgres
+  website_url: https://github.com/pgvector/pgvector/
+  open_source: false
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Database Tools
+  image_url: https://img.stackshare.io/service/109221/default_b888cdf5617d936aa6aacf130911906955508639.png
+  detection_source: input/a_example.txt
+  last_updated_by: LudoO
+  last_updated_on: 2019-03-04 23:11:34.000000000 Z
 - name: Git
   description: Fast, scalable, distributed revision control system
   website_url: http://git-scm.com/
@@ -26,3 +37,14 @@ tools:
   sub_category: Version Control System
   image_url: https://img.stackshare.io/service/1046/git.png
   detection_source: Repo Metadata
+- name: LangChain
+  description: Build AI apps with LLMs through composability
+  website_url: https://github.com/hwchase17/langchain
+  open_source: true
+  hosted_saas: false
+  category: Communications
+  sub_category: Large Language Model Tools
+  image_url: https://img.stackshare.io/service/48790/default_5b6c6b73f1ff3775c85d2a1ba954cb87e30cbf13.jpg
+  detection_source: input/a_example.txt
+  last_updated_by: LudoO
+  last_updated_on: 2019-03-04 23:11:34.000000000 Z
